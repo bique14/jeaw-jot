@@ -165,6 +165,8 @@
     "create": "Create",
     "join": "Join",
     "pinMismatch": "PINs do not match",
+    "pinWrong": "Incorrect PIN for this household",
+    "householdNotFound": "Household ID not found",
     "next": "Next"
   },
   "pin": {

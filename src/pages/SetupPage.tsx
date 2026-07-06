@@ -10,6 +10,7 @@ import {
   getStoredPinHash,
 } from "@/lib/pin";
 import { ChevronLeft } from "lucide-react";
+import { createHouseholdAuth, verifyHouseholdPin } from "@/services/households";
 
 type Tab = "create" | "join";
 type Step = "tab" | "houseName" | "householdId" | "pin" | "confirmPin";
@@ -59,7 +60,13 @@ function PinPad({
       </div>
 
       {/* Dots */}
-      <div className={shake ? "animate-[shake_0.4s_ease-in-out]" : ""}>
+      <div
+        className={
+          shake
+            ? "animate-[shake_0.4s_ease-in-out]"
+            : "flex flex-col items-center gap-3"
+        }
+      >
         <div className="flex gap-5">
           {[0, 1, 2, 3].map((i) => (
             <div
@@ -125,6 +132,16 @@ export default function SetupPage() {
   const [shake, setShake] = useState(false);
   const [householdIdError, setHouseholdIdError] = useState("");
 
+  const showPinError = (message: string) => {
+    setShake(true);
+    setTimeout(() => {
+      setPin("");
+      setConfirmPin("");
+      setPinError(message);
+      setShake(false);
+    }, 400);
+  };
+
   // บล็อก /setup ถ้ามี household แล้ว → ไป /pin แทน
   useEffect(() => {
     if (getStoredHouseholdId() && getStoredPinHash()) {
@@ -167,26 +184,47 @@ export default function SetupPage() {
 
   const handleConfirmPinComplete = async (v: string) => {
     if (v !== pin) {
-      setShake(true);
-      setTimeout(() => {
-        setConfirmPin("");
-        setPinError(t("setup.pinMismatch"));
-        setShake(false);
-      }, 400);
+      showPinError(t("setup.pinMismatch"));
       return;
     }
-    const householdId = generateHouseholdId();
-    const pinHash = await hashPin(pin);
-    saveHousehold(householdId, pinHash, houseName.trim() || undefined);
-    markSessionVerified();
-    navigate("/dashboard", { replace: true });
+
+    try {
+      const householdId = generateHouseholdId();
+      const pinHash = await hashPin(pin);
+      await createHouseholdAuth(
+        householdId,
+        pinHash,
+        houseName.trim() || undefined,
+      );
+      saveHousehold(householdId, pinHash, houseName.trim() || undefined);
+      markSessionVerified();
+      navigate("/dashboard", { replace: true });
+    } catch {
+      showPinError(t("error.generic"));
+    }
   };
 
   const finishJoin = async (pinValue: string) => {
-    const pinHash = await hashPin(pinValue);
-    saveHousehold(joinHouseholdId.trim(), pinHash);
-    markSessionVerified();
-    navigate("/dashboard", { replace: true });
+    try {
+      const enteredHouseholdId = joinHouseholdId.trim();
+      const pinHash = await hashPin(pinValue);
+      const result = await verifyHouseholdPin(enteredHouseholdId, pinHash);
+
+      if (result === "not-found") {
+        showPinError(t("setup.householdNotFound"));
+        return;
+      }
+      if (result === "wrong-pin") {
+        showPinError(t("setup.pinWrong"));
+        return;
+      }
+
+      saveHousehold(enteredHouseholdId, pinHash);
+      markSessionVerified();
+      navigate("/dashboard", { replace: true });
+    } catch {
+      showPinError(t("error.generic"));
+    }
   };
 
   const handleHouseholdIdNext = () => {

@@ -165,6 +165,8 @@
     "create": "สร้าง",
     "join": "เข้าร่วม",
     "pinMismatch": "PIN ไม่ตรงกัน",
+    "pinWrong": "PIN ของบ้านนี้ไม่ถูกต้อง",
+    "householdNotFound": "ไม่พบ Household ID นี้",
     "next": "ถัดไป"
   },
   "pin": {
