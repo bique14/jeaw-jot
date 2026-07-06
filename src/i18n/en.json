@@ -1,0 +1,212 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "items": "Items",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "item": {
+    "name": "Product Name",
+    "category": "Category",
+    "brand": "Brand",
+    "price": "Price",
+    "quantity": "Quantity",
+    "unit": "Unit",
+    "purchaseDate": "Purchase Date",
+    "startDate": "Start Date",
+    "expiryDate": "Expiry Date",
+    "notifyDaysBefore": "Notify Before",
+    "notifyDaysUnit": "days",
+    "notes": "Notes",
+    "image": "Product Image",
+    "imageOptional": "Product Image (optional)",
+    "status": {
+      "active": "Active",
+      "expiringSoon": "Expiring Soon",
+      "expired": "Expired",
+      "depleted": "Depleted"
+    },
+    "daysLeft_one": "{{count}} day left",
+    "daysLeft_other": "{{count}} days left",
+    "expiredDaysAgo_one": "Expired {{count}} day ago",
+    "expiredDaysAgo_other": "Expired {{count}} days ago",
+    "expiresToday": "Expires today!"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "totalItems": "Total Items",
+    "expiringSoon": "Expiring Soon",
+    "expired": "Expired",
+    "monthlySpend": "This Month",
+    "expiringSection": "Expiring Soon",
+    "timelineSection": "Next 30 Days",
+    "noItems": "No items yet",
+    "noItemsDesc": "Add your first item to get started",
+    "addItem": "Add Item",
+    "expiringAlert": "{{count}} items expiring soon",
+    "categoriesSection": "Categories",
+    "viewAll": "View all",
+    "today": "Today",
+    "in30days": "30 days",
+    "expiresToday": "Expires today",
+    "expiresInDays": "{{count}} days left",
+    "expiredDays": "{{count}} days over",
+    "expiresTomorrow": "Tomorrow"
+  },
+  "items": {
+    "title": "Items",
+    "searchPlaceholder": "Search items...",
+    "all": "All",
+    "sortBy": "Sort by",
+    "filterBy": "Filter",
+    "sortExpiringSoon": "Expiring Soon",
+    "sortNewest": "Newest",
+    "sortName": "Name",
+    "filterActive": "Active",
+    "filterAll": "All",
+    "empty": "No items yet",
+    "emptyHint": "Tap + to add your first item"
+  },
+  "form": {
+    "addItem": "Add New Item",
+    "editItem": "Edit Item",
+    "selectOrType": "Type or select...",
+    "selectCategory": "Select category",
+    "selectUnit": "Select unit"
+  },
+  "action": {
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "markDepleted": "Mark as Depleted",
+    "takePhoto": "Take Photo",
+    "choosePhoto": "Choose Photo",
+    "removePhoto": "Remove Photo"
+  },
+  "confirm": {
+    "deleteItem": "Delete Item",
+    "deleteItemDesc": "Delete \"{{name}}\"? This cannot be undone.",
+    "markDepleted": "Mark as Depleted",
+    "markDepletedDesc": "Mark \"{{name}}\" as depleted?",
+    "leaveHousehold": "Leave Household?",
+    "leaveHouseholdDesc": "Your PIN and Household ID will be cleared. You will be redirected to create or join a home.",
+    "importData": "Import Data?",
+    "importDataDesc": "Imported items will be added to this household."
+  },
+  "analytics": {
+    "title": "Analytics",
+    "monthlySpend": "Monthly Spend",
+    "byCategory": "By Category",
+    "mostBought": "Most Purchased",
+    "avgLifespan": "Avg. Lifespan",
+    "priceHistory": "Price History",
+    "times": "times",
+    "days": "days",
+    "period3m": "3 Months",
+    "period6m": "6 Months",
+    "period1y": "1 Year",
+    "totalSpend": "Total ฿{{amount}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "language": "Language",
+    "houseName": "Home Name",
+    "houseNamePlaceholder": "Your home name",
+    "householdId": "Household ID",
+    "copy": "Copy",
+    "changePin": "Change PIN",
+    "notifications": "Notifications",
+    "pushNotifications": "Push Notifications",
+    "notifyDaysLabel": "Notify in advance",
+    "notifyDaysHint": "Default for new items (editable per item)",
+    "notifyDaysUnit": "days",
+    "notifyOn": "Enabled",
+    "notifyOnBg": "Enabled \u2014 supports background push",
+    "notifyBlocked": "Blocked \u2014 enable in browser settings",
+    "notifyOff": "Not enabled",
+    "notifyEnable": "Enable",
+    "notifyTime": "Notify Time",
+    "categories": "Categories",
+    "manageCategories": "Manage Categories",
+    "data": "Data",
+    "exportJson": "Export Data (JSON)",
+    "importJson": "Import Data (JSON)",
+    "danger": "Danger Zone",
+    "leaveHousehold": "Leave Household",
+    "leaveHouseholdDesc": "Clear all local data and set up a new home"
+  },
+  "categories": {
+    "title": "Manage Categories",
+    "add": "Add Category",
+    "edit": "Edit Category",
+    "nameTh": "Thai Name",
+    "nameEn": "English Name",
+    "color": "Color",
+    "icon": "Icon",
+    "preset": "Preset",
+    "cannotDelete": "Cannot delete preset categories"
+  },
+  "setup": {
+    "title": "Jeaw",
+    "subtitle": "Household Item Tracker",
+    "createNew": "Create New Home",
+    "joinExisting": "Join Existing Home",
+    "householdIdLabel": "Household ID",
+    "householdIdPlaceholder": "e.g. jeaw-home-x7k2p",
+    "houseNameLabel": "Name your home",
+    "houseNamePlaceholder": "e.g. Our Home",
+    "houseNameHint": "2\u201330 characters",
+    "pinLabel": "4-digit PIN",
+    "confirmPinLabel": "Confirm PIN",
+    "create": "Create",
+    "join": "Join",
+    "pinMismatch": "PINs do not match",
+    "next": "Next"
+  },
+  "pin": {
+    "title": "Welcome Back",
+    "subtitle": "Enter your PIN to continue",
+    "placeholder": "4-digit PIN",
+    "wrong": "Incorrect PIN",
+    "enter": "Enter"
+  },
+  "error": {
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Not found",
+    "offline": "No internet connection"
+  },
+  "common": {
+    "loading": "Loading...",
+    "baht": "฿",
+    "days": "days"
+  },
+  "toast": {
+    "deleted": "Deleted successfully",
+    "depleted": "Marked as depleted",
+    "exported": "Export successful",
+    "imported": "Imported {{count}} items",
+    "importError": "Invalid file format",
+    "householdIdCopied": "Household ID copied"
+  },
+  "itemDetail": {
+    "lifespan": "Lifespan",
+    "details": "Details",
+    "priceHistory": "Price History",
+    "priceUnit": "Unit: Baht (\u0e3f)"
+  },
+  "install": {
+    "title": "Install app for notifications",
+    "desc": "Tap Share then \"Add to Home Screen\"",
+    "dismiss": "No thanks"
+  },
+  "notifBanner": {
+    "title": "Enable Notifications",
+    "desc": "Get notified before items expire",
+    "allow": "Allow",
+    "later": "Later"
+  }
+}

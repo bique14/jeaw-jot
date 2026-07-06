@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "dashboard": "หน้าหลัก",
+    "items": "สินค้า",
+    "analytics": "วิเคราะห์",
+    "settings": "ตั้งค่า"
+  },
+  "item": {
+    "name": "ชื่อสินค้า",
+    "category": "หมวดหมู่",
+    "brand": "แบรนด์",
+    "price": "ราคา",
+    "quantity": "จำนวน",
+    "unit": "หน่วย",
+    "purchaseDate": "วันที่ซื้อ",
+    "startDate": "วันที่เริ่มใช้",
+    "expiryDate": "วันหมดอายุ",
+    "notifyDaysBefore": "แจ้งเตือนก่อน",
+    "notifyDaysUnit": "วัน",
+    "notes": "หมายเหตุ",
+    "image": "รูปภาพสินค้า",
+    "imageOptional": "รูปภาพสินค้า (ไม่บังคับ)",
+    "status": {
+      "active": "ปกติ",
+      "expiringSoon": "ใกล้หมด",
+      "expired": "หมดอายุ",
+      "depleted": "ใช้หมดแล้ว"
+    },
+    "daysLeft_one": "เหลืออีก {{count}} วัน",
+    "daysLeft_other": "เหลืออีก {{count}} วัน",
+    "expiredDaysAgo_one": "หมดอายุไป {{count}} วันแล้ว",
+    "expiredDaysAgo_other": "หมดอายุไป {{count}} วันแล้ว",
+    "expiresToday": "หมดอายุวันนี้!"
+  },
+  "dashboard": {
+    "title": "หน้าหลัก",
+    "totalItems": "รายการทั้งหมด",
+    "expiringSoon": "ใกล้หมดอายุ",
+    "expired": "หมดอายุแล้ว",
+    "monthlySpend": "ค่าใช้จ่ายเดือนนี้",
+    "expiringSection": "ใกล้หมดอายุ",
+    "timelineSection": "30 วันข้างหน้า",
+    "noItems": "ยังไม่มีสินค้า",
+    "noItemsDesc": "เพิ่มสินค้าชิ้นแรกของคุณได้เลย",
+    "addItem": "เพิ่มสินค้า",
+    "expiringAlert": "มี {{count}} รายการใกล้หมดอายุ",
+    "categoriesSection": "หมวดหมู่",
+    "viewAll": "ดูทั้งหมด",
+    "today": "วันนี้",
+    "in30days": "30 วัน",
+    "expiresToday": "หมดวันนี้",
+    "expiresInDays": "อีก {{count}} วัน",
+    "expiredDays": "เกิน {{count}} วัน",
+    "expiresTomorrow": "พรุ่งนี้"
+  },
+  "items": {
+    "title": "สินค้า",
+    "searchPlaceholder": "ค้นหาสินค้า...",
+    "all": "ทั้งหมด",
+    "sortBy": "เรียงตาม",
+    "filterBy": "กรอง",
+    "sortExpiringSoon": "ใกล้หมดก่อน",
+    "sortNewest": "ใหม่สุด",
+    "sortName": "ชื่อ",
+    "filterActive": "กำลังใช้",
+    "filterAll": "ทั้งหมด",
+    "empty": "ยังไม่มีสินค้า",
+    "emptyHint": "กด + เพื่อเพิ่มสินค้าแรก"
+  },
+  "form": {
+    "addItem": "เพิ่มสินค้าใหม่",
+    "editItem": "แก้ไขสินค้า",
+    "selectOrType": "พิมพ์หรือเลือก...",
+    "selectCategory": "เลือกหมวดหมู่",
+    "selectUnit": "เลือกหน่วย"
+  },
+  "action": {
+    "add": "เพิ่ม",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "confirm": "ยืนยัน",
+    "markDepleted": "ใช้หมดแล้ว",
+    "takePhoto": "ถ่ายรูป",
+    "choosePhoto": "เลือกรูป",
+    "removePhoto": "ลบรูป"
+  },
+  "confirm": {
+    "deleteItem": "ยืนยันลบสินค้า",
+    "deleteItemDesc": "ลบ \"{{name}}\" ออกจากรายการ? ไม่สามารถย้อนกลับได้",
+    "markDepleted": "ยืนยันว่าใช้หมดแล้ว",
+    "markDepletedDesc": "ทำเครื่องหมายว่า \"{{name}}\" ใช้หมดแล้ว",
+    "leaveHousehold": "ออกจากบ้าน?",
+    "leaveHouseholdDesc": "ข้อมูล PIN และ Household ID ในอุปกรณ์นี้จะถูกล้าง คุณจะถูก redirect ไปหน้าสร้าง/เข้าร่วมบ้านใหม่",
+    "importData": "Import ข้อมูล?",
+    "importDataDesc": "ข้อมูลที่ Import จะถูกเพิ่มเข้าไปใน household นี้"
+  },
+  "analytics": {
+    "title": "วิเคราะห์",
+    "monthlySpend": "ค่าใช้จ่ายรายเดือน",
+    "byCategory": "สัดส่วนตามหมวดหมู่",
+    "mostBought": "สินค้าที่ซื้อบ่อย",
+    "avgLifespan": "ระยะเวลาใช้เฉลี่ย",
+    "priceHistory": "ประวัติราคา",
+    "times": "ครั้ง",
+    "days": "วัน",
+    "period3m": "3 เดือน",
+    "period6m": "6 เดือน",
+    "period1y": "1 ปี",
+    "totalSpend": "ยอดรวม {{amount}} บาท"
+  },
+  "settings": {
+    "title": "ตั้งค่า",
+    "general": "ทั่วไป",
+    "language": "ภาษา",
+    "houseName": "ชื่อบ้าน",
+    "houseNamePlaceholder": "ชื่อบ้านของคุณ",
+    "householdId": "Household ID",
+    "copy": "คัดลอก",
+    "changePin": "เปลี่ยน PIN",
+    "notifications": "การแจ้งเตือน",
+    "pushNotifications": "Push Notifications",
+    "notifyDaysLabel": "แจ้งเตือนล่วงหน้า",
+    "notifyDaysHint": "ค่า default สำหรับสินค้าใหม่ (แก้ไขได้รายสินค้า)",
+    "notifyDaysUnit": "วัน",
+    "notifyOn": "เปิดอยู่",
+    "notifyOnBg": "เปิดอยู่ — รองรับ background push",
+    "notifyBlocked": "ถูกบล็อก — เปิดในการตั้งค่าเบราว์เซอร์",
+    "notifyOff": "ยังไม่ได้เปิด",
+    "notifyEnable": "เปิด",
+    "notifyTime": "เวลาแจ้งเตือน",
+    "categories": "หมวดหมู่",
+    "manageCategories": "จัดการหมวดหมู่",
+    "data": "ข้อมูล",
+    "exportJson": "Export ข้อมูล (JSON)",
+    "importJson": "Import ข้อมูล (JSON)",
+    "danger": "อันตราย",
+    "leaveHousehold": "ออกจากบ้าน",
+    "leaveHouseholdDesc": "ล้างข้อมูลในอุปกรณ์นี้ ต้องสร้างหรือเข้าร่วมบ้านใหม่"
+  },
+  "categories": {
+    "title": "จัดการหมวดหมู่",
+    "add": "เพิ่มหมวดหมู่",
+    "edit": "แก้ไขหมวดหมู่",
+    "nameTh": "ชื่อภาษาไทย",
+    "nameEn": "ชื่อภาษาอังกฤษ",
+    "color": "สี",
+    "icon": "ไอคอน",
+    "preset": "ค่าเริ่มต้น",
+    "cannotDelete": "ไม่สามารถลบหมวดหมู่ค่าเริ่มต้นได้"
+  },
+  "setup": {
+    "title": "Jeaw",
+    "subtitle": "Household Item Tracker",
+    "createNew": "สร้างบ้านใหม่",
+    "joinExisting": "เข้าร่วมบ้านที่มีอยู่",
+    "householdIdLabel": "Household ID",
+    "householdIdPlaceholder": "เช่น jeaw-home-x7k2p",
+    "houseNameLabel": "ตั้งชื่อบ้านของคุณ",
+    "houseNamePlaceholder": "เช่น บ้านคุณเจ",
+    "houseNameHint": "2–30 ตัวอักษร",
+    "pinLabel": "PIN 4 หลัก",
+    "confirmPinLabel": "ยืนยัน PIN",
+    "create": "สร้าง",
+    "join": "เข้าร่วม",
+    "pinMismatch": "PIN ไม่ตรงกัน",
+    "next": "ถัดไป"
+  },
+  "pin": {
+    "title": "ยืนยันตัวตน",
+    "subtitle": "กรอก PIN เพื่อเข้าใช้งาน",
+    "placeholder": "PIN 4 หลัก",
+    "wrong": "PIN ไม่ถูกต้อง",
+    "enter": "เข้าสู่ระบบ"
+  },
+  "error": {
+    "generic": "เกิดข้อผิดพลาด กรุณาลองใหม่",
+    "notFound": "ไม่พบข้อมูล",
+    "offline": "ไม่มีการเชื่อมต่อ"
+  },
+  "common": {
+    "loading": "กำลังโหลด...",
+    "baht": "฿",
+    "days": "วัน",
+    "cancel": "ยกเลิก",
+    "confirm": "ยืนยัน"
+  },
+  "offline": {
+    "banner": "ออฟไลน์ — แสดงข้อมูลจาก cache"
+  },
+  "toast": {
+    "deleted": "ลบสำเร็จ",
+    "depleted": "บันทึกว่าใช้หมดแล้ว",
+    "exported": "Export สำเร็จ",
+    "imported": "Import สำเร็จ {{count}} รายการ",
+    "importError": "ไฟล์ไม่ถูกต้อง กรุณาตรวจสอบ",
+    "householdIdCopied": "คัดลอก Household ID แล้ว"
+  },
+  "itemDetail": {
+    "lifespan": "อายุการใช้งาน",
+    "details": "รายละเอียด",
+    "priceHistory": "ประวัติราคา",
+    "priceUnit": "หน่วย: บาท (฿)"
+  },
+  "install": {
+    "title": "ติดตั้งแอพเพื่อรับการแจ้งเตือน",
+    "desc": "แตะ Share แล้วเลือก \"Add to Home Screen\"",
+    "dismiss": "ไม่ต้องขอบคุณ"
+  },
+  "notifBanner": {
+    "title": "เปิดการแจ้งเตือน",
+    "desc": "รับแจ้งเตือนเมื่อสินค้าใกล้หมดอายุ ไม่พลาดทุกรายการ",
+    "allow": "อนุญาต",
+    "later": "ไว้ทีหลัง"
+  }
+}

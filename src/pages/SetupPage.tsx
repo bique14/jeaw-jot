@@ -1,0 +1,396 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import {
+  generateHouseholdId,
+  hashPin,
+  saveHousehold,
+  markSessionVerified,
+  getStoredHouseholdId,
+  getStoredPinHash,
+} from "@/lib/pin";
+import { ChevronLeft } from "lucide-react";
+
+type Tab = "create" | "join";
+type Step = "tab" | "houseName" | "householdId" | "pin" | "confirmPin";
+
+// ---- shared sub-component: PIN dots + numpad ----
+interface PinPadProps {
+  title: string;
+  subtitle?: string;
+  value: string;
+  onChange: (v: string) => void;
+  onComplete: (v: string) => void;
+  error: string;
+  shake: boolean;
+}
+
+function PinPad({
+  title,
+  subtitle,
+  value,
+  onChange,
+  onComplete,
+  error,
+  shake,
+}: PinPadProps) {
+  const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"];
+
+  const handleDigit = (d: string) => {
+    if (value.length >= 4) return;
+    const next = value + d;
+    onChange(next);
+    if (next.length === 4) onComplete(next);
+  };
+
+  const handleDel = () => onChange(value.slice(0, -1));
+
+  return (
+    <div className="flex flex-col items-center flex-1 justify-between py-8">
+      <div className="flex flex-col items-center gap-1">
+        <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+          {title}
+        </p>
+        {subtitle && (
+          <p className="text-sm text-gray-500 dark:text-slate-400">
+            {subtitle}
+          </p>
+        )}
+      </div>
+
+      {/* Dots */}
+      <div className={shake ? "animate-[shake_0.4s_ease-in-out]" : ""}>
+        <div className="flex gap-5">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`w-4 h-4 rounded-full border-2 transition-all duration-150 ${
+                i < value.length
+                  ? "bg-blue-600 border-blue-600 scale-110"
+                  : "bg-transparent border-gray-300 dark:border-slate-600"
+              }`}
+            />
+          ))}
+        </div>
+        {error && (
+          <p className="mt-3 text-sm text-red-500 text-center">{error}</p>
+        )}
+      </div>
+
+      {/* Numpad */}
+      <div className="w-full max-w-xs grid grid-cols-3 gap-3 px-4">
+        {digits.map((d, idx) => {
+          if (d === "") return <div key={idx} />;
+          if (d === "del") {
+            return (
+              <button
+                key="del"
+                type="button"
+                onClick={handleDel}
+                className="flex items-center justify-center h-16 rounded-2xl text-gray-600 dark:text-slate-300 text-2xl active:bg-gray-100 dark:active:bg-slate-700 transition-colors"
+              >
+                ⌫
+              </button>
+            );
+          }
+          return (
+            <button
+              key={d}
+              type="button"
+              onClick={() => handleDigit(d)}
+              className="flex items-center justify-center h-16 rounded-2xl bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-slate-100 text-xl font-semibold active:bg-gray-200 dark:active:bg-slate-600 active:scale-95 transition-all"
+            >
+              {d}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ---- Main page ----
+export default function SetupPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [tab, setTab] = useState<Tab>("create");
+  const [step, setStep] = useState<Step>("tab");
+  const [houseName, setHouseName] = useState("");
+  const [houseNameError, setHouseNameError] = useState("");
+  const [joinHouseholdId, setJoinHouseholdId] = useState("");
+  const [pin, setPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+  const [pinError, setPinError] = useState("");
+  const [shake, setShake] = useState(false);
+  const [householdIdError, setHouseholdIdError] = useState("");
+
+  // บล็อก /setup ถ้ามี household แล้ว → ไป /pin แทน
+  useEffect(() => {
+    if (getStoredHouseholdId() && getStoredPinHash()) {
+      navigate("/pin", { replace: true });
+    }
+  }, [navigate]);
+
+  // --- navigation helpers ---
+  const goBack = () => {
+    setPinError("");
+    setPin("");
+    setConfirmPin("");
+    if (step === "pin") {
+      if (tab === "join") setStep("householdId");
+      else setStep("houseName");
+    } else if (step === "confirmPin") {
+      setStep("pin");
+    } else if (step === "houseName") {
+      setStep("tab");
+    } else setStep("tab");
+  };
+
+  const switchTab = (t2: Tab) => {
+    setTab(t2);
+    setPin("");
+    setConfirmPin("");
+    setPinError("");
+  };
+
+  // --- create flow ---
+  const handlePinComplete = (v: string) => {
+    if (tab === "create") {
+      setPin(v);
+      setStep("confirmPin");
+    } else {
+      // join: PIN ครบ → save
+      finishJoin(v);
+    }
+  };
+
+  const handleConfirmPinComplete = async (v: string) => {
+    if (v !== pin) {
+      setShake(true);
+      setTimeout(() => {
+        setConfirmPin("");
+        setPinError(t("setup.pinMismatch"));
+        setShake(false);
+      }, 400);
+      return;
+    }
+    const householdId = generateHouseholdId();
+    const pinHash = await hashPin(pin);
+    saveHousehold(householdId, pinHash, houseName.trim() || undefined);
+    markSessionVerified();
+    navigate("/dashboard", { replace: true });
+  };
+
+  const finishJoin = async (pinValue: string) => {
+    const pinHash = await hashPin(pinValue);
+    saveHousehold(joinHouseholdId.trim(), pinHash);
+    markSessionVerified();
+    navigate("/dashboard", { replace: true });
+  };
+
+  const handleHouseholdIdNext = () => {
+    if (!joinHouseholdId.trim()) {
+      setHouseholdIdError("กรุณากรอก Household ID");
+      return;
+    }
+    setHouseholdIdError("");
+    setStep("pin");
+  };
+
+  const showBack = step !== "tab";
+
+  return (
+    <div className="flex min-h-dvh flex-col bg-white dark:bg-slate-900">
+      {/* Header */}
+      <div className="flex items-center h-14 px-2 relative">
+        {showBack && (
+          <button
+            type="button"
+            onClick={goBack}
+            className="flex items-center justify-center w-10 h-10 rounded-full active:bg-gray-100 dark:active:bg-slate-700 transition-colors"
+          >
+            <ChevronLeft
+              size={22}
+              className="text-gray-700 dark:text-slate-300"
+            />
+          </button>
+        )}
+        {/* Logo centered */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
+            <span className="text-white text-xs font-bold">J</span>
+          </div>
+          <span className="font-bold text-gray-900 dark:text-slate-100 text-sm">
+            {t("setup.title")}
+          </span>
+        </div>
+      </div>
+
+      {/* Step: Tab selection */}
+      {step === "tab" && (
+        <div className="flex flex-col flex-1 px-6">
+          <div className="flex flex-col items-center pt-12 pb-10">
+            <div className="w-20 h-20 rounded-3xl bg-blue-600 flex items-center justify-center mb-5 shadow-lg shadow-blue-200">
+              <span className="text-white text-4xl font-bold">J</span>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+              {t("setup.title")}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+              {t("setup.subtitle")}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                switchTab("create");
+                setStep("houseName");
+              }}
+              className="w-full rounded-2xl bg-blue-600 py-4 text-base font-semibold text-white shadow-sm active:scale-[0.98] active:bg-blue-700 transition-all"
+            >
+              {t("setup.createNew")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                switchTab("join");
+                setStep("householdId");
+              }}
+              className="w-full rounded-2xl border-2 border-gray-200 bg-white py-4 text-base font-semibold text-gray-900 active:scale-[0.98] active:bg-gray-50 transition-all"
+            >
+              {t("setup.joinExisting")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step: House name (create only) */}
+      {step === "houseName" && (
+        <div className="flex flex-col flex-1 px-6">
+          <div className="flex flex-col items-center pt-12 pb-8">
+            <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+              {t("setup.houseNameLabel")}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+              {t("setup.houseNameHint")}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              value={houseName}
+              onChange={(e) => {
+                setHouseName(e.target.value);
+                setHouseNameError("");
+              }}
+              placeholder={t("setup.houseNamePlaceholder")}
+              maxLength={30}
+              autoFocus
+              className="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-4 py-4 text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+            />
+            {houseNameError && (
+              <p className="text-sm text-red-500 text-center">
+                {houseNameError}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-auto pb-8 pt-6">
+            <button
+              type="button"
+              onClick={() => {
+                const trimmed = houseName.trim();
+                if (trimmed.length < 2) {
+                  setHouseNameError(t("setup.houseNameHint"));
+                  return;
+                }
+                setHouseNameError("");
+                setStep("pin");
+              }}
+              className="w-full rounded-2xl bg-blue-600 py-4 text-base font-semibold text-white active:scale-[0.98] active:bg-blue-700 transition-all"
+            >
+              {t("setup.next")}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step: Household ID (join only) */}
+      {step === "householdId" && (
+        <div className="flex flex-col flex-1 px-6">
+          <div className="flex flex-col items-center pt-12 pb-8">
+            <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+              {t("setup.householdIdLabel")}
+            </p>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+              กรอก ID ของบ้านที่ต้องการเข้าร่วม
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              value={joinHouseholdId}
+              onChange={(e) => {
+                setJoinHouseholdId(e.target.value);
+                setHouseholdIdError("");
+              }}
+              placeholder={t("setup.householdIdPlaceholder")}
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoFocus
+              className="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-4 py-4 text-sm font-mono text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
+            />
+            {householdIdError && (
+              <p className="text-sm text-red-500 text-center">
+                {householdIdError}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-auto pb-8 pt-6">
+            <button
+              type="button"
+              onClick={handleHouseholdIdNext}
+              className="w-full rounded-2xl bg-blue-600 py-4 text-base font-semibold text-white active:scale-[0.98] active:bg-blue-700 transition-all"
+            >
+              ถัดไป
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step: Enter PIN */}
+      {step === "pin" && (
+        <PinPad
+          title={tab === "create" ? "ตั้ง PIN ใหม่" : "กรอก PIN เพื่อเข้าร่วม"}
+          subtitle={tab === "create" ? "PIN 4 หลักสำหรับเข้าใช้งาน" : undefined}
+          value={pin}
+          onChange={setPin}
+          onComplete={handlePinComplete}
+          error={pinError}
+          shake={shake}
+        />
+      )}
+
+      {/* Step: Confirm PIN (create only) */}
+      {step === "confirmPin" && (
+        <PinPad
+          title="ยืนยัน PIN อีกครั้ง"
+          value={confirmPin}
+          onChange={(v) => {
+            setConfirmPin(v);
+            setPinError("");
+          }}
+          onComplete={handleConfirmPinComplete}
+          error={pinError}
+          shake={shake}
+        />
+      )}
+    </div>
+  );
+}
