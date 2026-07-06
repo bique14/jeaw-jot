@@ -167,6 +167,10 @@
     "pinMismatch": "PINs do not match",
     "pinWrong": "Incorrect PIN for this household",
     "householdNotFound": "Household ID not found",
+    "createNoPermission": "Cannot create household. Please check Firestore rules.",
+    "createFailed": "Cannot create household right now. Please try again.",
+    "joinNoPermission": "Cannot verify this household. Please check Firestore rules.",
+    "joinFailed": "Cannot join household right now. Please try again.",
     "next": "Next"
   },
   "pin": {

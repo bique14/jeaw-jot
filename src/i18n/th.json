@@ -167,6 +167,10 @@
     "pinMismatch": "PIN ไม่ตรงกัน",
     "pinWrong": "PIN ของบ้านนี้ไม่ถูกต้อง",
     "householdNotFound": "ไม่พบ Household ID นี้",
+    "createNoPermission": "ไม่สามารถสร้างบ้านได้ กรุณาตรวจสอบ Firestore rules",
+    "createFailed": "ยังไม่สามารถสร้างบ้านได้ในขณะนี้ กรุณาลองใหม่",
+    "joinNoPermission": "ไม่สามารถตรวจสอบบ้านนี้ได้ กรุณาตรวจสอบ Firestore rules",
+    "joinFailed": "ยังไม่สามารถเข้าร่วมบ้านได้ในขณะนี้ กรุณาลองใหม่",
     "next": "ถัดไป"
   },
   "pin": {
