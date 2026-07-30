@@ -1,13 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Package } from "lucide-react";
+import { Package, Infinity as InfinityIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ProductItem } from "@/types";
 import { ItemStatusBadge } from "./ItemStatusBadge";
-import { ItemProgressBar } from "./ItemProgressBar";
-import { daysUntilExpiry, computeStatus } from "@/lib/itemUtils";
+import { ItemProgressBar, remainingLifespanPercent } from "./ItemProgressBar";
+import {
+  daysUntilExpiry,
+  computeStatus,
+  daysUsed,
+  toDate,
+} from "@/lib/itemUtils";
 import { format } from "date-fns";
-import { toDate } from "@/lib/itemUtils";
 
 interface Props {
   item: ProductItem;
@@ -19,9 +23,12 @@ export function ItemCard({ item, className }: Props) {
   const { t } = useTranslation();
   const days = daysUntilExpiry(item);
   const status = computeStatus(item);
+  const remaining = remainingLifespanPercent(item);
 
   const daysLabel = (() => {
-    if (status === "depleted") return t("item.status.depleted");
+    if (status === "depleted")
+      return t("item.usedForDays_other", { count: daysUsed(item) });
+    if (days === null) return t("item.noExpiry");
     if (days === 0) return t("item.expiresToday");
     if (days < 0)
       return t("item.expiredDaysAgo_other", { count: Math.abs(days) });
@@ -32,10 +39,10 @@ export function ItemCard({ item, className }: Props) {
     status === "expired"
       ? "text-red-500"
       : status === "depleted"
-        ? "text-gray-400"
-        : days <= item.notifyDaysBefore
+        ? "text-gray-400 dark:text-slate-500"
+        : days !== null && days <= item.notifyDaysBefore
           ? "text-amber-500"
-          : "text-gray-500";
+          : "text-gray-500 dark:text-slate-400";
 
   return (
     <button
@@ -73,12 +80,30 @@ export function ItemCard({ item, className }: Props) {
             {item.brand}
           </p>
         )}
-        <ItemProgressBar item={item} className="mt-2" />
+
+        {/* Lifespan bar + % */}
+        <div className="flex items-center gap-2 mt-2">
+          <ItemProgressBar item={item} className="flex-1" />
+          {status === "active" &&
+            (remaining !== null ? (
+              <span className="flex-shrink-0 text-[10px] font-semibold tabular-nums text-gray-400 dark:text-slate-500">
+                {remaining}%
+              </span>
+            ) : (
+              <InfinityIcon
+                size={12}
+                className="flex-shrink-0 text-blue-400 dark:text-blue-500"
+              />
+            ))}
+        </div>
+
         <div className="flex items-center justify-between mt-1.5">
           <p className={cn("text-xs font-medium", daysColor)}>{daysLabel}</p>
-          <p className="text-xs text-gray-400 dark:text-slate-500">
-            {format(toDate(item.expiryDate), "d MMM yy")}
-          </p>
+          {item.expiryDate && (
+            <p className="text-xs text-gray-400 dark:text-slate-500">
+              {format(toDate(item.expiryDate), "d MMM yy")}
+            </p>
+          )}
         </div>
       </div>
     </button>

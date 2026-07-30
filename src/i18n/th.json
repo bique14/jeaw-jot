@@ -30,7 +30,10 @@
     "daysLeft_other": "เหลืออีก {{count}} วัน",
     "expiredDaysAgo_one": "หมดอายุไป {{count}} วันแล้ว",
     "expiredDaysAgo_other": "หมดอายุไป {{count}} วันแล้ว",
-    "expiresToday": "หมดอายุวันนี้!"
+    "expiresToday": "หมดอายุวันนี้!",
+    "noExpiry": "ไม่ระบุวันหมดอายุ",
+    "usedForDays_one": "ใช้งานไป {{count}} วัน",
+    "usedForDays_other": "ใช้งานไป {{count}} วัน"
   },
   "dashboard": {
     "title": "หน้าหลัก",
@@ -129,6 +132,9 @@
     "notifyBlocked": "ถูกบล็อก — เปิดในการตั้งค่าเบราว์เซอร์",
     "notifyOff": "ยังไม่ได้เปิด",
     "notifyEnable": "เปิด",
+    "notifyTest": "ทดสอบ",
+    "notifyTestSent": "ส่งการแจ้งเตือนทดสอบแล้ว เช็คที่แถบแจ้งเตือนได้เลย",
+    "notifyTestFailed": "ส่งไม่สำเร็จ ลองติดตั้งแอพลงหน้าจอหลัก (Add to Home Screen) ก่อน",
     "notifyTime": "เวลาแจ้งเตือน",
     "categories": "หมวดหมู่",
     "manageCategories": "จัดการหมวดหมู่",
@@ -148,6 +154,7 @@
     "color": "สี",
     "icon": "ไอคอน",
     "preset": "ค่าเริ่มต้น",
+    "custom": "กำหนดเอง",
     "cannotDelete": "ไม่สามารถลบหมวดหมู่ค่าเริ่มต้นได้"
   },
   "setup": {
@@ -198,6 +205,7 @@
   "toast": {
     "deleted": "ลบสำเร็จ",
     "depleted": "บันทึกว่าใช้หมดแล้ว",
+    "depletedWithDays": "บันทึกแล้ว — ใช้ของชิ้นนี้ไปทั้งหมด {{count}} วัน",
     "exported": "Export สำเร็จ",
     "imported": "Import สำเร็จ {{count}} รายการ",
     "importError": "ไฟล์ไม่ถูกต้อง กรุณาตรวจสอบ",

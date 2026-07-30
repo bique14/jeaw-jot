@@ -6,7 +6,7 @@ import { useItems } from "@/hooks/useItems";
 import { ItemCard } from "@/components/items/ItemCard";
 import {
   computeStatus,
-  daysUntilExpiry,
+  expirySortValue,
   isExpiringSoon,
 } from "@/lib/itemUtils";
 import type { ProductItem } from "@/types";
@@ -16,7 +16,7 @@ type FilterKey = "all" | "active" | "expired" | "depleted";
 
 function sortItems(items: ProductItem[], sort: SortKey): ProductItem[] {
   return [...items].sort((a, b) => {
-    if (sort === "expiry") return daysUntilExpiry(a) - daysUntilExpiry(b);
+    if (sort === "expiry") return expirySortValue(a) - expirySortValue(b);
     if (sort === "name") return a.name.localeCompare(b.name, "th");
     // newest
     return b.createdAt.seconds - a.createdAt.seconds;

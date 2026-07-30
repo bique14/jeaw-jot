@@ -54,8 +54,14 @@ function PinPad({
   return (
     <div className="flex flex-col items-center flex-1 justify-between py-8">
       <div className="flex flex-col items-center gap-1">
-        <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">{title}</p>
-        {subtitle && <p className="text-sm text-gray-500 dark:text-slate-400">{subtitle}</p>}
+        <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+          {title}
+        </p>
+        {subtitle && (
+          <p className="text-sm text-gray-500 dark:text-slate-400">
+            {subtitle}
+          </p>
+        )}
       </div>
 
       <div
@@ -73,7 +79,9 @@ function PinPad({
             />
           ))}
         </div>
-        {error && <p className="mt-3 text-sm text-red-500 text-center">{error}</p>}
+        {error && (
+          <p className="mt-3 text-sm text-red-500 text-center">{error}</p>
+        )}
       </div>
 
       <div className="w-full max-w-xs grid grid-cols-3 gap-3 px-4">
@@ -287,7 +295,10 @@ export default function SetupPage() {
             disabled={isSubmitting}
             className="flex items-center justify-center w-10 h-10 rounded-full active:bg-gray-100 dark:active:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            <ChevronLeft size={22} className="text-gray-700 dark:text-slate-300" />
+            <ChevronLeft
+              size={22}
+              className="text-gray-700 dark:text-slate-300"
+            />
           </button>
         )}
 
@@ -364,7 +375,11 @@ export default function SetupPage() {
               autoFocus
               className="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-4 py-4 text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
-            {houseNameError && <p className="text-sm text-red-500 text-center">{houseNameError}</p>}
+            {houseNameError && (
+              <p className="text-sm text-red-500 text-center">
+                {houseNameError}
+              </p>
+            )}
           </div>
 
           <div className="mt-auto pb-8 pt-6">
@@ -393,7 +408,9 @@ export default function SetupPage() {
             <p className="text-lg font-semibold text-gray-900 dark:text-slate-100">
               {t("setup.householdIdLabel")}
             </p>
-            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">กรอก ID ของบ้านที่ต้องการเข้าร่วม</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
+              กรอก ID ของบ้านที่ต้องการเข้าร่วม
+            </p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -410,7 +427,11 @@ export default function SetupPage() {
               autoFocus
               className="w-full rounded-2xl border-2 border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-4 py-4 text-sm font-mono text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all"
             />
-            {householdIdError && <p className="text-sm text-red-500 text-center">{householdIdError}</p>}
+            {householdIdError && (
+              <p className="text-sm text-red-500 text-center">
+                {householdIdError}
+              </p>
+            )}
           </div>
 
           <div className="mt-auto pb-8 pt-6">

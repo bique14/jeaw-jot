@@ -17,11 +17,20 @@ import {
 import { useItems } from "@/hooks/useItems";
 import { useCategories } from "@/hooks/useCategories";
 import { useAllTemplates } from "@/hooks/useAllTemplates";
-import { toDate } from "@/lib/itemUtils";
+import { toDate, daysUsed } from "@/lib/itemUtils";
+import type { ProductItem } from "@/types";
 
 type Period = "3m" | "6m" | "1y";
 
 const PERIOD_MONTHS: Record<Period, number> = { "3m": 3, "6m": 6, "1y": 12 };
+
+/** วันที่ซื้อ (fallback เป็นวันที่เพิ่มข้อมูล เมื่อไม่ได้กรอกวันที่ซื้อ) */
+function purchaseOrCreated(item: ProductItem): Date {
+  return toDate(item.purchaseDate ?? item.createdAt);
+}
+
+// กันข้อมูลเพี้ยน เช่นกรอกปี พ.ศ. แทน ค.ศ. ทำให้ระยะเวลาโดดเป็นหมื่นวัน
+const MAX_REASONABLE_LIFESPAN_DAYS = 365 * 5;
 
 export default function AnalyticsPage() {
   const { t, i18n } = useTranslation();
@@ -39,7 +48,7 @@ export default function AnalyticsPage() {
 
   // ---- filtered items within period ----
   const filteredItems = useMemo(
-    () => items.filter((i) => !isBefore(toDate(i.purchaseDate), cutoff)),
+    () => items.filter((i) => !isBefore(purchaseOrCreated(i), cutoff)),
     [items, cutoff],
   );
 
@@ -47,7 +56,7 @@ export default function AnalyticsPage() {
   const monthlySpendData = useMemo(() => {
     const map: Record<string, number> = {};
     filteredItems.forEach((item) => {
-      const key = format(toDate(item.purchaseDate), "MMM yy", { locale });
+      const key = format(purchaseOrCreated(item), "MMM yy", { locale });
       map[key] = (map[key] ?? 0) + item.price * item.quantity;
     });
     // build sorted array month-by-month
@@ -80,22 +89,34 @@ export default function AnalyticsPage() {
   const mostBoughtData = useMemo(
     () =>
       templates
-        .filter((t) => (t.timesAdded ?? 0) > 0)
+        // ปัดเศษเป็นจำนวนเต็ม — จำนวนครั้งที่ซื้อต้องไม่เป็นทศนิยม
+        .map((t) => ({
+          name: t.name,
+          times: Math.max(0, Math.round(t.timesAdded ?? 0)),
+        }))
+        .filter((t) => t.times > 0)
         .slice(0, 8)
-        .map((t) => ({ name: t.name, times: t.timesAdded ?? 0 }))
         .reverse(),
     [templates],
   );
 
-  // ---- avg lifespan per template (from items within period) ----
+  // ---- avg lifespan per product (from items within period) ----
+  // ใช้ระยะเวลาใช้จริงสำหรับของที่ใช้หมดแล้ว (startDate → depletedAt)
+  // ส่วนของที่ยังใช้อยู่ใช้อายุตามแผน (startDate → expiryDate)
+  // พร้อมกรองค่าเพี้ยนออก (เช่นกรอกปีพุทธศักราช ทำให้เลขเพี้ยนเป็นหมื่นวัน)
   const lifespanData = useMemo(() => {
     const map: Record<string, number[]> = {};
     filteredItems.forEach((item) => {
-      const days = differenceInDays(
-        toDate(item.expiryDate),
-        toDate(item.startDate),
-      );
-      if (days > 0) {
+      let days: number | null = null;
+      if (item.status === "depleted") {
+        days = daysUsed(item);
+      } else if (item.expiryDate) {
+        days = differenceInDays(
+          toDate(item.expiryDate),
+          toDate(item.startDate),
+        );
+      }
+      if (days !== null && days > 0 && days <= MAX_REASONABLE_LIFESPAN_DAYS) {
         const key = item.name;
         if (!map[key]) map[key] = [];
         map[key].push(days);
@@ -276,6 +297,7 @@ export default function AnalyticsPage() {
                 />
                 <XAxis
                   type="number"
+                  allowDecimals={false}
                   tick={{ fontSize: 10, fill: "#9ca3af" }}
                   tickLine={false}
                   axisLine={false}
@@ -290,7 +312,10 @@ export default function AnalyticsPage() {
                   width={90}
                 />
                 <Tooltip
-                  formatter={(v) => [`${Number(v)} ครั้ง`, "ซื้อรวม"]}
+                  formatter={(v) => [
+                    `${Math.round(Number(v))} ครั้ง`,
+                    "ซื้อรวม",
+                  ]}
                   contentStyle={{
                     borderRadius: 12,
                     border: "none",

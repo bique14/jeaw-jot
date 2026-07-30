@@ -19,7 +19,12 @@ import { deleteItem, markDepleted } from "@/services/items";
 import { ItemStatusBadge } from "@/components/items/ItemStatusBadge";
 import { ItemProgressBar } from "@/components/items/ItemProgressBar";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { daysUntilExpiry, computeStatus, toDate } from "@/lib/itemUtils";
+import {
+  daysUntilExpiry,
+  computeStatus,
+  daysUsed,
+  toDate,
+} from "@/lib/itemUtils";
 
 export default function ItemDetailPage() {
   const { t, i18n } = useTranslation();
@@ -40,10 +45,13 @@ export default function ItemDetailPage() {
       .filter((i) => i.name.toLowerCase() === item.name.toLowerCase())
       .sort(
         (a, b) =>
-          toDate(a.purchaseDate).getTime() - toDate(b.purchaseDate).getTime(),
+          toDate(a.purchaseDate ?? a.createdAt).getTime() -
+          toDate(b.purchaseDate ?? b.createdAt).getTime(),
       )
       .map((i) => ({
-        date: format(toDate(i.purchaseDate), "d MMM", { locale }),
+        date: format(toDate(i.purchaseDate ?? i.createdAt), "d MMM", {
+          locale,
+        }),
         price: i.price,
       }));
   }, [items, item, locale]);
@@ -56,10 +64,13 @@ export default function ItemDetailPage() {
   };
 
   const handleDepleted = async () => {
-    if (!id) return;
+    if (!id || !item) return;
+    const usedDays = daysUsed({ ...item, status: "active" });
     await markDepleted(id);
     setConfirmDepleted(false);
-    toast.success(t("toast.depleted"));
+    toast.success(t("toast.depletedWithDays", { count: usedDays }), {
+      duration: 5000,
+    });
   };
 
   if (loading) {
@@ -82,7 +93,9 @@ export default function ItemDetailPage() {
   const status = computeStatus(item);
 
   const daysLabel = (() => {
-    if (status === "depleted") return t("item.status.depleted");
+    if (status === "depleted")
+      return t("item.usedForDays_other", { count: daysUsed(item) });
+    if (days === null) return t("item.noExpiry");
     if (days === 0) return t("item.expiresToday");
     if (days < 0)
       return t("item.expiredDaysAgo_other", { count: Math.abs(days) });
@@ -170,9 +183,9 @@ export default function ItemDetailPage() {
           {[
             {
               label: t("item.purchaseDate"),
-              value: format(toDate(item.purchaseDate), "d MMM yyyy", {
-                locale,
-              }),
+              value: item.purchaseDate
+                ? format(toDate(item.purchaseDate), "d MMM yyyy", { locale })
+                : "—",
             },
             {
               label: t("item.startDate"),
@@ -180,7 +193,9 @@ export default function ItemDetailPage() {
             },
             {
               label: t("item.expiryDate"),
-              value: format(toDate(item.expiryDate), "d MMM yyyy", { locale }),
+              value: item.expiryDate
+                ? format(toDate(item.expiryDate), "d MMM yyyy", { locale })
+                : "—",
             },
             {
               label: t("item.price"),

@@ -73,7 +73,8 @@ export async function upsertTemplate(
 
   if (existing) {
     const prev = existing.data() as ProductTemplate;
-    const timesAdded = (prev.timesAdded ?? 0) + 1;
+    // ปัดเศษค่าเดิมก่อนบวก — self-heal ข้อมูลเก่าที่เคยเป็นทศนิยม
+    const timesAdded = Math.max(0, Math.round(prev.timesAdded ?? 0)) + 1;
     const avgLifespan = input.lifespanDays
       ? Math.round(
           ((prev.averageLifespanDays ?? input.lifespanDays) +
@@ -87,8 +88,8 @@ export async function upsertTemplate(
       {
         ...prev,
         timesAdded,
-        lastPrice: input.lastPrice ?? prev.lastPrice,
-        averageLifespanDays: avgLifespan,
+        lastPrice: input.lastPrice ?? prev.lastPrice ?? null,
+        averageLifespanDays: avgLifespan ?? null,
         defaultUnit: input.defaultUnit,
         defaultNotifyDaysBefore: input.defaultNotifyDaysBefore,
         categoryId: input.categoryId,
@@ -105,9 +106,9 @@ export async function upsertTemplate(
       categoryId: input.categoryId,
       defaultUnit: input.defaultUnit,
       defaultNotifyDaysBefore: input.defaultNotifyDaysBefore,
-      averageLifespanDays: input.lifespanDays,
+      averageLifespanDays: input.lifespanDays ?? null,
       timesAdded: 1,
-      lastPrice: input.lastPrice,
+      lastPrice: input.lastPrice ?? null,
       updatedAt: serverTimestamp(),
     });
   }

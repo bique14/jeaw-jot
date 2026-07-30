@@ -17,7 +17,7 @@ import type { Category } from "@/types";
 
 const COLLECTION = "categories";
 
-// 7 preset categories พร้อม icon lucide + สี
+// 8 preset categories พร้อม icon lucide + สี
 export const PRESET_CATEGORIES: Omit<Category, "householdId">[] = [
   {
     id: "food",
@@ -68,16 +68,24 @@ export const PRESET_CATEGORIES: Omit<Category, "householdId">[] = [
     order: 5,
   },
   {
+    id: "cosmetic",
+    label: { th: "เครื่องสำอาง", en: "Cosmetics" },
+    color: "#D946EF",
+    icon: "Palette",
+    isPreset: true,
+    order: 6,
+  },
+  {
     id: "other",
     label: { th: "อื่นๆ", en: "Other" },
     color: "#94A3B8",
     icon: "Box",
     isPreset: true,
-    order: 6,
+    order: 7,
   },
 ];
 
-/** ครั้งแรก: seed preset categories ถ้ายังไม่มีใน Firestore */
+/** seed preset categories ที่ยังขาด (บ้านเก่าจะได้ preset ใหม่ที่เพิ่มภายหลังด้วย) */
 export async function seedCategoriesIfNeeded(
   householdId: string,
 ): Promise<void> {
@@ -87,10 +95,15 @@ export async function seedCategoriesIfNeeded(
     where("householdId", "==", householdId),
   );
   const snap = await getDocs(q);
-  if (!snap.empty) return; // มีข้อมูลแล้ว
+  const existingIds = new Set(snap.docs.map((d) => d.id));
+
+  const missing = PRESET_CATEGORIES.filter(
+    (cat) => !existingIds.has(`${householdId}_${cat.id}`),
+  );
+  if (missing.length === 0) return;
 
   await Promise.all(
-    PRESET_CATEGORIES.map((cat) =>
+    missing.map((cat) =>
       setDoc(doc(db, COLLECTION, `${householdId}_${cat.id}`), {
         ...cat,
         householdId,

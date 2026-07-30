@@ -20,9 +20,9 @@ export default function EditItemPage() {
       name: values.name,
       brand: values.brand,
       categoryId: values.categoryId,
-      purchaseDate: new Date(values.purchaseDate),
+      purchaseDate: values.purchaseDate ? new Date(values.purchaseDate) : null,
       startDate: new Date(values.startDate),
-      expiryDate: new Date(values.expiryDate),
+      expiryDate: values.expiryDate ? new Date(values.expiryDate) : null,
       price: values.price,
       quantity: values.quantity,
       unit: values.unit,
@@ -34,7 +34,7 @@ export default function EditItemPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-dvh text-sm text-gray-400">
+      <div className="flex items-center justify-center min-h-dvh bg-gray-50 dark:bg-slate-900 text-sm text-gray-400 dark:text-slate-500">
         {t("common.loading")}
       </div>
     );
@@ -42,23 +42,28 @@ export default function EditItemPage() {
 
   if (!item) {
     return (
-      <div className="flex items-center justify-center min-h-dvh text-sm text-gray-400">
+      <div className="flex items-center justify-center min-h-dvh bg-gray-50 dark:bg-slate-900 text-sm text-gray-400 dark:text-slate-500">
         {t("error.notFound")}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-dvh bg-gray-50">
-      <div className="flex items-center gap-2 px-2 h-14 border-b border-gray-100 bg-white sticky top-0 z-10">
+    <div className="flex flex-col min-h-dvh bg-gray-50 dark:bg-slate-900">
+      <div className="flex items-center gap-2 px-2 h-14 border-b border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800 sticky top-0 z-10">
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="flex h-10 w-10 items-center justify-center rounded-full active:bg-gray-100 transition-colors"
+          className="flex h-10 w-10 items-center justify-center rounded-full active:bg-gray-100 dark:active:bg-slate-700 transition-colors"
         >
-          <ChevronLeft size={22} className="text-gray-700" />
+          <ChevronLeft
+            size={22}
+            className="text-gray-700 dark:text-slate-300"
+          />
         </button>
-        <h1 className="font-semibold text-gray-900">{t("form.editItem")}</h1>
+        <h1 className="font-semibold text-gray-900 dark:text-slate-100">
+          {t("form.editItem")}
+        </h1>
       </div>
 
       <div className="pt-4">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
@@ -26,6 +26,42 @@ function dateToInput(d: Date) {
   return format(d, "yyyy-MM-dd");
 }
 
+/**
+ * จัด format ราคาที่พิมพ์: ตัดตัวอักษรที่ไม่ใช่ตัวเลข/จุด,
+ * ตัดเลข 0 นำหน้า, ใส่ comma คั่นหลักพัน, ทศนิยมไม่เกิน 2 ตำแหน่ง
+ */
+function formatPriceText(raw: string): { text: string; value: number } {
+  let cleaned = raw.replace(/[^\d.]/g, "");
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    cleaned =
+      cleaned.slice(0, firstDot + 1) +
+      cleaned.slice(firstDot + 1).replace(/\./g, "");
+  }
+  const [intRaw = "", decRaw] = cleaned.split(".");
+  const intPart = intRaw.replace(/^0+(?=\d)/, ""); // ตัด 0 นำหน้า
+  const decPart = decRaw !== undefined ? decRaw.slice(0, 2) : undefined;
+  const intFormatted = intPart
+    ? Number(intPart).toLocaleString("en-US")
+    : decPart !== undefined
+      ? "0"
+      : "";
+  const text =
+    decPart !== undefined ? `${intFormatted}.${decPart}` : intFormatted;
+  const value = Number(`${intPart || "0"}.${decPart ?? "0"}`) || 0;
+  return { text, value };
+}
+
+function priceToText(price: number): string {
+  if (!price) return "";
+  return price % 1 === 0
+    ? price.toLocaleString("en-US")
+    : price.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      });
+}
+
 export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
   const { t } = useTranslation();
   const today = dateToInput(new Date());
@@ -43,9 +79,13 @@ export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
           name: initialValues.name,
           brand: initialValues.brand ?? "",
           categoryId: initialValues.categoryId,
-          purchaseDate: dateToInput(toDate(initialValues.purchaseDate)),
+          purchaseDate: initialValues.purchaseDate
+            ? dateToInput(toDate(initialValues.purchaseDate))
+            : "",
           startDate: dateToInput(toDate(initialValues.startDate)),
-          expiryDate: dateToInput(toDate(initialValues.expiryDate)),
+          expiryDate: initialValues.expiryDate
+            ? dateToInput(toDate(initialValues.expiryDate))
+            : "",
           price: initialValues.price,
           quantity: initialValues.quantity,
           unit: initialValues.unit,
@@ -66,6 +106,15 @@ export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
   const { templates } = useTemplates(nameValue);
   const { categories } = useCategories();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [priceText, setPriceText] = useState(() =>
+    priceToText(initialValues?.price ?? 0),
+  );
+
+  const handlePriceChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { text, value } = formatPriceText(e.target.value);
+    setPriceText(text);
+    setValue("price", value, { shouldValidate: true });
+  };
 
   useEffect(() => {
     setShowSuggestions(templates.length > 0 && nameValue.length > 0);
@@ -77,7 +126,10 @@ export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
     setValue("categoryId", tpl.categoryId);
     setValue("unit", tpl.defaultUnit);
     setValue("notifyDaysBefore", tpl.defaultNotifyDaysBefore);
-    if (tpl.lastPrice) setValue("price", tpl.lastPrice);
+    if (tpl.lastPrice) {
+      setValue("price", tpl.lastPrice);
+      setPriceText(priceToText(tpl.lastPrice));
+    }
     setShowSuggestions(false);
   };
 
@@ -168,7 +220,12 @@ export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
       {/* Dates row */}
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1">
-          <label className={labelClass}>{t("item.purchaseDate")}</label>
+          <label className={labelClass}>
+            {t("item.purchaseDate")}{" "}
+            <span className="text-gray-400 dark:text-slate-500 font-normal">
+              (ไม่บังคับ)
+            </span>
+          </label>
           <input
             type="date"
             {...register("purchaseDate")}
@@ -185,11 +242,19 @@ export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
             {...register("startDate")}
             className={fieldClass}
           />
+          {errors.startDate && (
+            <p className={errorClass}>{errors.startDate.message}</p>
+          )}
         </div>
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className={labelClass}>{t("item.expiryDate")}</label>
+        <label className={labelClass}>
+          {t("item.expiryDate")}{" "}
+          <span className="text-gray-400 dark:text-slate-500 font-normal">
+            (ไม่บังคับ)
+          </span>
+        </label>
         <input type="date" {...register("expiryDate")} className={fieldClass} />
         {errors.expiryDate && (
           <p className={errorClass}>{errors.expiryDate.message}</p>
@@ -201,11 +266,11 @@ export function ItemForm({ initialValues, onSubmit, submitLabel }: Props) {
         <div className="flex flex-col gap-1 col-span-1">
           <label className={labelClass}>{t("item.price")}</label>
           <input
-            type="number"
+            type="text"
             inputMode="decimal"
-            min={0}
-            step="0.01"
-            {...register("price")}
+            placeholder="0"
+            value={priceText}
+            onChange={handlePriceChange}
             className={fieldClass}
           />
           {errors.price && <p className={errorClass}>{errors.price.message}</p>}

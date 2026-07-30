@@ -24,24 +24,6 @@ const COLORS = [
   "#94A3B8",
 ];
 
-// const ICONS = [
-//   "ShoppingBasket",
-//   "Pill",
-//   "Sparkles",
-//   "WashingMachine",
-//   "Baby",
-//   "PawPrint",
-//   "Box",
-//   "Apple",
-//   "Coffee",
-//   "Shirt",
-//   "Dumbbell",
-//   "Heart",
-//   "Star",
-//   "Home",
-//   "Zap",
-// ];
-
 interface FormState {
   labelTh: string;
   labelEn: string;
@@ -113,15 +95,6 @@ export default function CategoriesPage() {
     setConfirmDeleteId(null);
   };
 
-  // const handleToggleVisible = async (cat: Category) => {
-  //   // ใช้ color เป็น indicator: prefix '#' = visible, '#hidden_' = hidden
-  //   // วิธีที่สะอาดกว่า: เพิ่ม field hidden แต่ type ยังไม่มี — ใช้ updateCategory
-  //   await updateCategory(cat.id, {
-  //     // toggle ด้วย icon prefix เป็น workaround ง่ายๆ
-  //     // จริงๆ ควรเพิ่ม field `hidden: boolean` ใน type — ทำได้ใน future
-  //   } as Parameters<typeof updateCategory>[1]);
-  // };
-
   return (
     <div className="flex flex-col min-h-dvh bg-gray-50 dark:bg-slate-900">
       {/* Header */}
@@ -188,7 +161,7 @@ export default function CategoriesPage() {
         {categories.filter((c) => !c.isPreset).length > 0 && (
           <>
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-slate-500 mt-3 mb-1">
-              กำหนดเอง
+              {t("categories.custom")}
             </p>
             {categories
               .filter((c) => !c.isPreset)

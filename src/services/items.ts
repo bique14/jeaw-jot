@@ -37,7 +37,11 @@ export function subscribeItems(
     (snap) => {
       const items = snap.docs
         .map((d) => ({ id: d.id, ...d.data() }) as ProductItem)
-        .sort((a, b) => a.expiryDate.seconds - b.expiryDate.seconds);
+        .sort(
+          (a, b) =>
+            (a.expiryDate?.seconds ?? Infinity) -
+            (b.expiryDate?.seconds ?? Infinity),
+        );
       onData(items);
     },
     onError,
@@ -49,9 +53,9 @@ export interface AddItemInput {
   name: string;
   brand?: string;
   categoryId: string;
-  purchaseDate: Date;
+  purchaseDate: Date | null;
   startDate: Date;
-  expiryDate: Date;
+  expiryDate: Date | null;
   price: number;
   quantity: number;
   unit: string;
@@ -67,9 +71,11 @@ export async function addItem(input: AddItemInput): Promise<string> {
     ...input,
     brand: input.brand ?? "",
     notes: input.notes ?? "",
-    purchaseDate: Timestamp.fromDate(input.purchaseDate),
+    purchaseDate: input.purchaseDate
+      ? Timestamp.fromDate(input.purchaseDate)
+      : null,
     startDate: Timestamp.fromDate(input.startDate),
-    expiryDate: Timestamp.fromDate(input.expiryDate),
+    expiryDate: input.expiryDate ? Timestamp.fromDate(input.expiryDate) : null,
     status: "active" as ItemStatus,
     createdAt: now,
     updatedAt: now,
@@ -84,9 +90,11 @@ export async function addItem(input: AddItemInput): Promise<string> {
     defaultUnit: input.unit,
     defaultNotifyDaysBefore: input.notifyDaysBefore,
     lastPrice: input.price,
-    lifespanDays: Math.round(
-      (input.expiryDate.getTime() - input.startDate.getTime()) / 86400000,
-    ),
+    lifespanDays: input.expiryDate
+      ? Math.round(
+          (input.expiryDate.getTime() - input.startDate.getTime()) / 86400000,
+        )
+      : undefined,
   });
 
   return docRef.id;
@@ -105,10 +113,16 @@ export async function updateItem(
     updatedAt: serverTimestamp(),
   };
 
-  if (input.purchaseDate)
-    data.purchaseDate = Timestamp.fromDate(input.purchaseDate);
+  // วันที่ optional: undefined = ไม่แก้, null = ล้างค่า
+  if (input.purchaseDate !== undefined)
+    data.purchaseDate = input.purchaseDate
+      ? Timestamp.fromDate(input.purchaseDate)
+      : null;
   if (input.startDate) data.startDate = Timestamp.fromDate(input.startDate);
-  if (input.expiryDate) data.expiryDate = Timestamp.fromDate(input.expiryDate);
+  if (input.expiryDate !== undefined)
+    data.expiryDate = input.expiryDate
+      ? Timestamp.fromDate(input.expiryDate)
+      : null;
 
   await updateDoc(doc(db, COLLECTION, itemId), data);
 }
@@ -116,6 +130,7 @@ export async function updateItem(
 export async function markDepleted(itemId: string): Promise<void> {
   await updateDoc(doc(db, COLLECTION, itemId), {
     status: "depleted" as ItemStatus,
+    depletedAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
 }
@@ -131,5 +146,9 @@ export async function getItemsOnce(
   const snap = await getDocs(itemsRef(householdId));
   return snap.docs
     .map((d) => ({ id: d.id, ...d.data() }) as ProductItem)
-    .sort((a, b) => a.expiryDate.seconds - b.expiryDate.seconds);
+    .sort(
+      (a, b) =>
+        (a.expiryDate?.seconds ?? Infinity) -
+        (b.expiryDate?.seconds ?? Infinity),
+    );
 }

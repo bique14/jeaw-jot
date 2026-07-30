@@ -30,7 +30,10 @@
     "daysLeft_other": "{{count}} days left",
     "expiredDaysAgo_one": "Expired {{count}} day ago",
     "expiredDaysAgo_other": "Expired {{count}} days ago",
-    "expiresToday": "Expires today!"
+    "expiresToday": "Expires today!",
+    "noExpiry": "No expiry date",
+    "usedForDays_one": "Used for {{count}} day",
+    "usedForDays_other": "Used for {{count}} days"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -129,6 +132,9 @@
     "notifyBlocked": "Blocked \u2014 enable in browser settings",
     "notifyOff": "Not enabled",
     "notifyEnable": "Enable",
+    "notifyTest": "Test",
+    "notifyTestSent": "Test notification sent — check your notification tray",
+    "notifyTestFailed": "Failed to send. Try installing the app to your home screen first",
     "notifyTime": "Notify Time",
     "categories": "Categories",
     "manageCategories": "Manage Categories",
@@ -148,6 +154,7 @@
     "color": "Color",
     "icon": "Icon",
     "preset": "Preset",
+    "custom": "Custom",
     "cannotDelete": "Cannot delete preset categories"
   },
   "setup": {
@@ -188,11 +195,14 @@
   "common": {
     "loading": "Loading...",
     "baht": "฿",
-    "days": "days"
+    "days": "days",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   },
   "toast": {
     "deleted": "Deleted successfully",
     "depleted": "Marked as depleted",
+    "depletedWithDays": "Saved — this item was used for {{count}} days",
     "exported": "Export successful",
     "imported": "Imported {{count}} items",
     "importError": "Invalid file format",

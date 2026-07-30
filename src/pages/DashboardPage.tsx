@@ -74,7 +74,10 @@ export default function DashboardPage() {
     );
     const expired = items.filter((i) => computeStatus(i) === "expired");
     const monthlySpend = items
-      .filter((i) => !isBefore(toDate(i.purchaseDate), startOfMonth))
+      .filter(
+        (i) =>
+          i.purchaseDate && !isBefore(toDate(i.purchaseDate), startOfMonth),
+      )
       .reduce((sum, i) => sum + i.price * i.quantity, 0);
     return {
       total: activeItems.length,
@@ -88,7 +91,7 @@ export default function DashboardPage() {
     () =>
       items
         .filter((i) => computeStatus(i) === "active" && isExpiringSoon(i))
-        .sort((a, b) => daysUntilExpiry(a) - daysUntilExpiry(b)),
+        .sort((a, b) => (daysUntilExpiry(a) ?? 0) - (daysUntilExpiry(b) ?? 0)),
     [items],
   );
 
@@ -98,9 +101,9 @@ export default function DashboardPage() {
         const s = computeStatus(item);
         if (s === "depleted") return false;
         const days = daysUntilExpiry(item);
-        return days >= -1 && days <= 30;
+        return days !== null && days >= -1 && days <= 30;
       })
-      .sort((a, b) => daysUntilExpiry(a) - daysUntilExpiry(b))
+      .sort((a, b) => (daysUntilExpiry(a) ?? 0) - (daysUntilExpiry(b) ?? 0))
       .slice(0, 12);
   }, [items]);
 
@@ -195,7 +198,7 @@ export default function DashboardPage() {
           label={t("dashboard.expired")}
           value={stats.expired}
           iconBg="bg-red-100"
-          iconColor="text-red-500 dark:text-red-400 dark:text-red-500"
+          iconColor="text-red-500 dark:text-red-400"
           badge={stats.expired > 0}
           onClick={() => navigate("/items")}
         />
@@ -221,7 +224,7 @@ export default function DashboardPage() {
           />
           <div className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-none">
             {expiringSoonItems.slice(0, 10).map((item) => {
-              const days = daysUntilExpiry(item);
+              const days = daysUntilExpiry(item) ?? 0;
               const { text, urgent } = getDayLabel(days, t);
               return (
                 <button
@@ -242,7 +245,7 @@ export default function DashboardPage() {
                     </p>
                   )}
                   <p
-                    className={`mt-3 text-xs font-bold ${urgent ? "text-red-500 dark:text-red-400 dark:text-red-500" : "text-amber-500"}`}
+                    className={`mt-3 text-xs font-bold ${urgent ? "text-red-500 dark:text-red-400" : "text-amber-500"}`}
                   >
                     {text}
                   </p>
@@ -306,7 +309,7 @@ export default function DashboardPage() {
             {/* Gantt rows */}
             <div className="flex flex-col gap-2">
               {ganttItems.map((item) => {
-                const days = daysUntilExpiry(item);
+                const days = daysUntilExpiry(item) ?? 0;
                 const pct = Math.min(
                   100,
                   Math.max(4, (Math.max(0, days) / 30) * 100),

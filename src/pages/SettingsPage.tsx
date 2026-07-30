@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { useHousehold } from "@/hooks/useHousehold";
 import { useNotifications } from "@/hooks/useNotifications";
+import { sendTestNotification } from "@/services/notifications";
 import { clearHousehold, saveHouseName } from "@/lib/pin";
 import { getItemsOnce, addItem } from "@/services/items";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -75,9 +76,9 @@ export default function SettingsPage() {
         exportedAt: new Date().toISOString(),
         items: items.map((item) => ({
           ...item,
-          purchaseDate: item.purchaseDate.toDate().toISOString(),
+          purchaseDate: item.purchaseDate?.toDate().toISOString() ?? null,
           startDate: item.startDate.toDate().toISOString(),
-          expiryDate: item.expiryDate.toDate().toISOString(),
+          expiryDate: item.expiryDate?.toDate().toISOString() ?? null,
           createdAt: item.createdAt?.toDate().toISOString(),
           updatedAt: item.updatedAt?.toDate().toISOString(),
         })),
@@ -127,9 +128,13 @@ export default function SettingsPage() {
           name: item.name,
           brand: item.brand,
           categoryId: item.categoryId,
-          purchaseDate: new Date(item.purchaseDate as unknown as string),
+          purchaseDate: item.purchaseDate
+            ? new Date(item.purchaseDate as unknown as string)
+            : null,
           startDate: new Date(item.startDate as unknown as string),
-          expiryDate: new Date(item.expiryDate as unknown as string),
+          expiryDate: item.expiryDate
+            ? new Date(item.expiryDate as unknown as string)
+            : null,
           price: item.price,
           quantity: item.quantity,
           unit: item.unit,
@@ -239,9 +244,17 @@ export default function SettingsPage() {
               </button>
             )}
             {permission === "granted" && (
-              <span className="text-xs font-semibold text-green-600 dark:text-green-400">
-                ✓
-              </span>
+              <button
+                type="button"
+                onClick={async () => {
+                  const ok = await sendTestNotification();
+                  if (ok) toast.success(t("settings.notifyTestSent"));
+                  else toast.error(t("settings.notifyTestFailed"));
+                }}
+                className="rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-slate-200 active:bg-gray-100 dark:active:bg-slate-600 transition-colors"
+              >
+                {t("settings.notifyTest")}
+              </button>
             )}
           </div>
 

@@ -25,9 +25,11 @@ export interface ProductItem {
   brand?: string;
   categoryId: string;
 
-  purchaseDate: Timestamp;
+  /** เว้นว่างได้ (optional) */
+  purchaseDate: Timestamp | null;
   startDate: Timestamp;
-  expiryDate: Timestamp;
+  /** เว้นว่างได้ (optional) */
+  expiryDate: Timestamp | null;
 
   price: number;
   quantity: number;
@@ -37,6 +39,8 @@ export interface ProductItem {
   notifyDaysBefore: number;
 
   status: ItemStatus;
+  /** เวลาที่กด "ใช้หมดแล้ว" */
+  depletedAt?: Timestamp | null;
 
   imageUrl?: string;
   imagePath?: string;

@@ -17,11 +17,10 @@ import {
 
 const COLLECTION = "notificationLogs";
 
-/** ตรวจว่าแจ้งรายการนี้ไปวันนี้แล้วหรือยัง (single-where query เพื่อหลีกเลี่ยง composite index) */
-async function wasNotifiedToday(
+/** ดึง itemId ทั้งหมดที่แจ้งเตือนไปแล้ววันนี้ (query เดียว ไม่ต้อง N+1) */
+async function getNotifiedTodayItemIds(
   householdId: string,
-  itemId: string,
-): Promise<boolean> {
+): Promise<Set<string>> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const q = query(
@@ -29,10 +28,14 @@ async function wasNotifiedToday(
     where("householdId", "==", householdId),
   );
   const snap = await getDocs(q);
-  return snap.docs.some((doc) => {
+  const ids = new Set<string>();
+  snap.docs.forEach((doc) => {
     const data = doc.data() as NotificationLog;
-    return data.itemId === itemId && toDate(data.notifiedAt) >= today;
+    if (data.notifiedAt && toDate(data.notifiedAt) >= today) {
+      ids.add(data.itemId);
+    }
   });
+  return ids;
 }
 
 /** ขอ permission แจ้งเตือนจาก browser */
@@ -40,6 +43,45 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   if (!("Notification" in window)) return "denied";
   if (Notification.permission !== "default") return Notification.permission;
   return Notification.requestPermission();
+}
+
+/**
+ * แสดง notification ผ่าน Service Worker (จำเป็นสำหรับ PWA/Android —
+ * `new Notification()` ใช้ไม่ได้ในหน้าเว็บที่ติดตั้งเป็นแอพ)
+ * ถ้าไม่มี SW จะ fallback เป็น Notification constructor
+ */
+async function showNotification(
+  title: string,
+  options: NotificationOptions,
+): Promise<boolean> {
+  try {
+    if ("serviceWorker" in navigator) {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        await reg.showNotification(title, options);
+        return true;
+      }
+    }
+  } catch {
+    // ตกไปใช้ fallback ด้านล่าง
+  }
+  try {
+    new Notification(title, options);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** ทดสอบส่ง notification ทันที — ใช้เช็คว่าเครื่องนี้แจ้งเตือนได้จริง */
+export async function sendTestNotification(): Promise<boolean> {
+  if (!("Notification" in window) || Notification.permission !== "granted")
+    return false;
+  return showNotification("Jeaw — ทดสอบการแจ้งเตือน", {
+    body: "การแจ้งเตือนทำงานได้ปกติ 🎉",
+    icon: "/icon-192.png",
+    tag: "jeaw-test",
+  });
 }
 
 /** ส่ง notification สำหรับ items ที่ใกล้หมดอายุ + บันทึก log */
@@ -53,13 +95,16 @@ export async function checkAndNotify(
   const toNotify = items.filter(
     (item) => computeStatus(item) === "active" && isExpiringSoon(item),
   );
+  if (toNotify.length === 0) return 0;
+
+  const notifiedToday = await getNotifiedTodayItemIds(householdId);
 
   let count = 0;
   for (const item of toNotify) {
-    const alreadyNotified = await wasNotifiedToday(householdId, item.id);
-    if (alreadyNotified) continue;
+    if (notifiedToday.has(item.id)) continue;
 
     const days = daysUntilExpiry(item);
+    if (days === null) continue;
     const body =
       days === 0
         ? `${item.name} หมดอายุวันนี้!`
@@ -67,11 +112,12 @@ export async function checkAndNotify(
           ? `${item.name} หมดอายุไปแล้ว ${Math.abs(days)} วัน`
           : `${item.name} จะหมดอายุในอีก ${days} วัน`;
 
-    new Notification("Jeaw — สินค้าใกล้หมดอายุ", {
+    const shown = await showNotification("Jeaw — สินค้าใกล้หมดอายุ", {
       body,
       icon: "/icon-192.png",
       tag: `jeaw-${item.id}`,
     });
+    if (!shown) continue;
 
     await addDoc(collection(db, COLLECTION), {
       householdId,
